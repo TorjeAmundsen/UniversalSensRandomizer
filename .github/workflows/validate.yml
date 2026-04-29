@@ -1,62 +1,62 @@
 name: Validate build
 
 on:
-  pull_request:
-  push:
-    branches:
-      - main
+    pull_request:
+    push:
+        branches:
+            - main
 
 jobs:
-  build:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v6
+    build:
+        runs-on: windows-latest
+        steps:
+            - uses: actions/checkout@v6
 
-      - uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: '10.0.x'
+            - uses: actions/setup-dotnet@v5
+              with:
+                  dotnet-version: "10.0.x"
 
-      - name: Publish (AOT)
-        shell: bash
-        run: |
-          dotnet publish UniversalSensRandomizer.csproj \
-            -c Release \
-            -r win-x64 \
-            --self-contained true \
-            -p:PublishAot=true \
-            -o build/win-x64
+            - name: Publish (AOT)
+              shell: bash
+              run: |
+                  dotnet publish UniversalSensRandomizer.csproj \
+                    -c Release \
+                    -r win-x64 \
+                    --self-contained true \
+                    -p:PublishAot=true \
+                    -o build/win-x64
 
-  version-check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-          fetch-tags: true
+    version-check:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+              with:
+                  fetch-depth: 0
+                  fetch-tags: true
 
-      - name: Compare csproj <Version> to latest v* tag
-        shell: bash
-        run: |
-          set -euo pipefail
-          VERSION=$(grep -oPm1 '(?<=<Version>)[^<]+' UniversalSensRandomizer.csproj || true)
-          if [ -z "${VERSION}" ]; then
-            echo "::error::No <Version> found in UniversalSensRandomizer.csproj"
-            exit 1
-          fi
+            - name: Compare csproj <Version> to latest v* tag
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  VERSION=$(grep -oPm1 '(?<=<Version>)[^<]+' UniversalSensRandomizer.csproj || true)
+                  if [ -z "${VERSION}" ]; then
+                    echo "::error::No <Version> found in UniversalSensRandomizer.csproj"
+                    exit 1
+                  fi
 
-          LATEST_TAG=$(git tag --list 'v*' --sort=-v:refname | head -n1 || true)
-          if [ -z "${LATEST_TAG}" ]; then
-            echo "No prior v* tag — skipping check. csproj version: ${VERSION}"
-            exit 0
-          fi
-          LATEST_VERSION="${LATEST_TAG#v}"
+                  LATEST_TAG=$(git tag --list 'v*' --sort=-v:refname | head -n1 || true)
+                  if [ -z "${LATEST_TAG}" ]; then
+                    echo "No prior v* tag - skipping check. csproj version: ${VERSION}"
+                    exit 0
+                  fi
+                  LATEST_VERSION="${LATEST_TAG#v}"
 
-          echo "csproj <Version>: ${VERSION}"
-          echo "Latest tag:       ${LATEST_TAG} (${LATEST_VERSION})"
+                  echo "csproj <Version>: ${VERSION}"
+                  echo "Latest tag:       ${LATEST_TAG} (${LATEST_VERSION})"
 
-          if [ "${VERSION}" = "${LATEST_VERSION}" ]; then
-            echo "::error::csproj <Version> ${VERSION} matches latest tag ${LATEST_TAG}. Bump <Version> in UniversalSensRandomizer.csproj before merging."
-            exit 1
-          fi
+                  if [ "${VERSION}" = "${LATEST_VERSION}" ]; then
+                    echo "::error::csproj <Version> ${VERSION} matches latest tag ${LATEST_TAG}. Bump <Version> in UniversalSensRandomizer.csproj before merging."
+                    exit 1
+                  fi
 
-          echo "Version differs. OK."
+                  echo "Version differs. OK."

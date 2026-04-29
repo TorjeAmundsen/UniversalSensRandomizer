@@ -27,7 +27,11 @@ public sealed class RandomizerEngine
         {
             (min, max) = (max, min);
         }
-        double sample = Random.Shared.NextDouble() * (max - min) + min;
+        // Log-uniform sampling: equal probability per ratio so perceived sensitivity
+        // change is uniform (0.5x->1.0x feels the same as 1.0x->2.0x).
+        double logMin = Math.Log(min);
+        double logMax = Math.Log(max);
+        double sample = Math.Exp(Random.Shared.NextDouble() * (logMax - logMin) + logMin);
         double multiplier = Math.Round(sample, 2);
         ApplyMultiplier(multiplier);
     }

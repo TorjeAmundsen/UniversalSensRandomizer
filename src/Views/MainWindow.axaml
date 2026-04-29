@@ -4,32 +4,18 @@
         x:Class="UniversalSensRandomizer.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="UniversalSensRandomizer"
-        Width="524" Height="320"
+        Width="524" Height="280"
         CanResize="False"
         WindowStartupLocation="CenterScreen"
-        Background="#232323"
-        Foreground="#FFFFFF">
-
-  <Window.Resources>
-    <SolidColorBrush x:Key="PanelBrush">#1A1A1A</SolidColorBrush>
-    <SolidColorBrush x:Key="LabelBrush">#FFFFFF</SolidColorBrush>
-  </Window.Resources>
+        Background="#2C2C2C">
 
   <Window.Styles>
     <Style Selector="TextBlock">
-      <Setter Property="Foreground" Value="{StaticResource LabelBrush}" />
       <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
-    <Style Selector="Button, ToggleButton">
-      <Setter Property="Background" Value="#2E2E2E" />
-      <Setter Property="Foreground" Value="#FFFFFF" />
-    </Style>
-    <Style Selector="CheckBox">
-      <Setter Property="Foreground" Value="#FFFFFF" />
-    </Style>
     <Style Selector="Border.panel">
-      <Setter Property="Background" Value="{StaticResource PanelBrush}" />
-      <Setter Property="BorderBrush" Value="#3A3A3A" />
+      <Setter Property="Background" Value="#252525" />
+      <Setter Property="BorderBrush" Value="#484848" />
       <Setter Property="BorderThickness" Value="1" />
       <Setter Property="CornerRadius" Value="3" />
     </Style>
@@ -110,7 +96,7 @@
       <Setter Property="Padding" Value="6,0" />
     </Style>
     <Style Selector="Border.nud-wrap:focus-within">
-      <Setter Property="BorderBrush" Value="#777777" />
+      <Setter Property="BorderBrush" Value="#336EB0" />
     </Style>
 
     <Style Selector="Button.nud-spin">
@@ -127,18 +113,18 @@
     </Style>
   </Window.Styles>
 
-  <Canvas Width="524" Height="320">
+  <Canvas Width="524" Height="280">
 
-    <TextBlock Canvas.Left="10" Canvas.Top="14" Width="121" Height="21"
+    <TextBlock Canvas.Left="10" Canvas.Top="14" Width="151" Height="21"
                Text="Base cm/360 (at 1.00x)" />
-    <Grid Canvas.Left="140" Canvas.Top="10" Width="111" Height="28"
+    <Grid Canvas.Left="170" Canvas.Top="10" Width="81" Height="28"
           ColumnDefinitions="*,Auto">
       <Border Classes="nud-wrap" Margin="0,0,-1,0">
         <NumericUpDown Name="BaseCm360Nud"
                        Minimum="1" Maximum="200" Increment="0.5"
                        FormatString="F1"
                        ShowButtonSpinner="False"
-                       Value="{Binding BaseCm360}" />
+                       Value="{Binding BaseCm360, Converter={x:Static vm:NudDoubleConverter.Instance}}" />
       </Border>
       <StackPanel Grid.Column="1" Spacing="0">
         <Button Classes="nud-spin" Content="▲" Tag="BaseCm360Nud"
@@ -150,16 +136,16 @@
       </StackPanel>
     </Grid>
 
-    <TextBlock Canvas.Left="10" Canvas.Top="54" Width="121" Height="21"
+    <TextBlock Canvas.Left="10" Canvas.Top="54" Width="151" Height="21"
                Text="Min multiplier" />
-    <Grid Canvas.Left="140" Canvas.Top="50" Width="111" Height="28"
+    <Grid Canvas.Left="170" Canvas.Top="50" Width="81" Height="28"
           ColumnDefinitions="*,Auto">
       <Border Classes="nud-wrap" Margin="0,0,-1,0">
         <NumericUpDown Name="MinMultiplierNud"
                        Minimum="0.05" Maximum="10" Increment="0.05"
                        FormatString="F2"
                        ShowButtonSpinner="False"
-                       Value="{Binding MinMultiplier}" />
+                       Value="{Binding MinMultiplier, Converter={x:Static vm:NudDoubleConverter.Instance}}" />
       </Border>
       <StackPanel Grid.Column="1" Spacing="0">
         <Button Classes="nud-spin" Content="▲" Tag="MinMultiplierNud"
@@ -171,16 +157,16 @@
       </StackPanel>
     </Grid>
 
-    <TextBlock Canvas.Left="10" Canvas.Top="94" Width="121" Height="21"
+    <TextBlock Canvas.Left="10" Canvas.Top="94" Width="151" Height="21"
                Text="Max multiplier" />
-    <Grid Canvas.Left="140" Canvas.Top="90" Width="111" Height="28"
+    <Grid Canvas.Left="170" Canvas.Top="90" Width="81" Height="28"
           ColumnDefinitions="*,Auto">
       <Border Classes="nud-wrap" Margin="0,0,-1,0">
         <NumericUpDown Name="MaxMultiplierNud"
                        Minimum="0.05" Maximum="10" Increment="0.05"
                        FormatString="F2"
                        ShowButtonSpinner="False"
-                       Value="{Binding MaxMultiplier}" />
+                       Value="{Binding MaxMultiplier, Converter={x:Static vm:NudDoubleConverter.Instance}}" />
       </Border>
       <StackPanel Grid.Column="1" Spacing="0">
         <Button Classes="nud-spin" Content="▲" Tag="MaxMultiplierNud"
@@ -192,27 +178,15 @@
       </StackPanel>
     </Grid>
 
-    <ToggleButton Canvas.Left="10" Canvas.Top="135" Width="241" Height="30"
-                  IsChecked="{Binding IsDisabled}"
-                  Command="{Binding ToggleDisableCommand}">
-      <TextBlock>
-        <TextBlock.Text>
-          <MultiBinding StringFormat="{}{0}">
-            <Binding Path="IsDisabled" Converter="{x:Static vm:DisableToggleTextConverter.Instance}" />
-          </MultiBinding>
-        </TextBlock.Text>
-      </TextBlock>
-    </ToggleButton>
-
-    <Button Canvas.Left="10" Canvas.Top="175" Width="241" Height="30"
+    <Button Canvas.Left="10" Canvas.Top="135" Width="241" Height="30"
             Content="Randomize once"
             Command="{Binding RandomizeCommand}" />
 
-    <Button Canvas.Left="10" Canvas.Top="215" Width="241" Height="31"
+    <Button Canvas.Left="10" Canvas.Top="175" Width="241" Height="31"
             Content="Save settings"
             Command="{Binding SaveSettingsCommand}" />
 
-    <Button Canvas.Left="10" Canvas.Top="255" Width="241" Height="51"
+    <Button Canvas.Left="10" Canvas.Top="215" Width="241" Height="51"
             Command="{Binding StartStopCommand}">
       <TextBlock>
         <TextBlock.Text>
@@ -224,7 +198,7 @@
     </Button>
 
     <Border Classes="panel"
-            Canvas.Left="263" Canvas.Top="10" Width="251" Height="211">
+            Canvas.Left="263" Canvas.Top="10" Width="251" Height="171">
       <Canvas>
         <TextBlock Canvas.Left="10" Canvas.Top="6" Width="231" Height="21"
                    Text="Randomize sensitivity"
@@ -249,10 +223,10 @@
               ColumnDefinitions="*,Auto">
           <Border Classes="nud-wrap" Margin="0,0,-1,0">
             <NumericUpDown Name="TimerIntervalNud"
-                           Minimum="1" Maximum="9999" Increment="1"
-                           FormatString="F0"
+                           Minimum="1.5" Maximum="9999" Increment="0.5"
+                           FormatString="F1"
                            ShowButtonSpinner="False"
-                           Value="{Binding TimerIntervalSeconds}" />
+                           Value="{Binding TimerIntervalSeconds, Converter={x:Static vm:NudDoubleConverter.Instance}}" />
           </Border>
           <StackPanel Grid.Column="1" Spacing="0">
             <Button Classes="nud-spin" Content="▲" Tag="TimerIntervalNud"
@@ -267,7 +241,7 @@
     </Border>
 
     <Border Classes="panel"
-            Canvas.Left="263" Canvas.Top="231" Width="251" Height="75">
+            Canvas.Left="263" Canvas.Top="191" Width="251" Height="75">
       <TextBlock Text="{Binding LiveOutputText}"
                  FontWeight="Bold"
                  FontSize="14"

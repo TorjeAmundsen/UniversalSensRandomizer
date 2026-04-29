@@ -1,25 +1,27 @@
 using System;
 using System.Globalization;
+using Avalonia.Data;
 using Avalonia.Data.Converters;
 
 namespace UniversalSensRandomizer.ViewModels;
 
-public sealed class DisableToggleTextConverter : IValueConverter
+// Converts double <-> decimal? for NumericUpDown bindings. When the user clears the
+// field the NUD pushes null back to the source; without this converter Avalonia tries
+// to coerce null into a non-nullable double and surfaces System.InvalidCastException
+// in the input field. Returning BindingOperations.DoNothing leaves the source value
+// unchanged in that case.
+public sealed class NudDoubleConverter : IValueConverter
 {
-    public static DisableToggleTextConverter Instance { get; } = new();
+    public static NudDoubleConverter Instance { get; } = new();
 
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is bool disabled && disabled)
-        {
-            return "Disabled (1.00x baseline)";
-        }
-        return "Disable randomizer";
+        return value is double d ? (decimal)d : (object?)null;
     }
 
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        throw new NotSupportedException();
+        return value is decimal d ? (double)d : BindingOperations.DoNothing;
     }
 }
 

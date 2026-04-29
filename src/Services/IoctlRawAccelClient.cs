@@ -24,7 +24,17 @@ public sealed class IoctlRawAccelClient : IRawAccelClient
 
         if (modifierCount == 0)
         {
-            modifierCount = 1;
+            // Driver has no modifier data loaded (e.g. fresh install). Driver-side READ
+            // returns only the io_base header in that case, so synthesize a buffer
+            // with one default-initialized modifier_settings - matches what the C++
+            // user-mode wrapper does in rawaccel-io.hpp.
+            byte[] synth = new byte[RawAccelLayout.IoBaseSize + RawAccelLayout.ModifierSettingsSize];
+            Buffer.BlockCopy(header, 0, synth, 0, RawAccelLayout.IoBaseSize);
+            BinaryPrimitives.WriteUInt32LittleEndian(
+                synth.AsSpan(RawAccelLayout.ModifierDataSizeOffset), 1u);
+            RawAccelDefaults.WriteDefaultModifierSettings(
+                synth.AsSpan(RawAccelLayout.IoBaseSize, RawAccelLayout.ModifierSettingsSize));
+            return synth;
         }
 
         long total = RawAccelLayout.IoBaseSize
@@ -40,7 +50,7 @@ public sealed class IoctlRawAccelClient : IRawAccelClient
         uint fullBytes = RawAccelInterop.Read(handle, full);
         if (fullBytes != total)
         {
-            throw new IOException($"Driver returned {fullBytes} bytes; expected {total}. RawAccel struct version mismatch — UniversalSensRandomizer may need an update.");
+            throw new IOException($"Driver returned {fullBytes} bytes; expected {total}. RawAccel struct version mismatch - UniversalSensRandomizer may need an update.");
         }
 
         return full;

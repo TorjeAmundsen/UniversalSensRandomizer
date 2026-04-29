@@ -41,7 +41,7 @@ public sealed class WriterExeRawAccelClient : IRawAccelClient
         // writer.exe consumes a JSON settings file rather than a raw driver buffer.
         // The composite client reconstructs JSON from the snapshot before invoking us; this lower-level client does not handle that directly.
         // Caller must supply a path to a settings.json file in lieu of binary buffer is not feasible here, so this method is intentionally unused
-        // when the caller routes through FallbackRawAccelClient — which serializes JSON itself and shells out via WriteJsonFile below.
+        // when the caller routes through FallbackRawAccelClient - which serializes JSON itself and shells out via WriteJsonFile below.
         throw new NotSupportedException("Use WriteJsonFile instead.");
     }
 

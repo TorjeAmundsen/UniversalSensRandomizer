@@ -26,16 +26,19 @@ public partial class MainWindowViewModel : ViewModelBase
     private double maxMultiplier;
 
     [ObservableProperty]
-    private int timerIntervalSeconds;
+    private double timerIntervalSeconds;
 
     [ObservableProperty]
     private bool timerEnabled;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(StartStopCommand))]
     private bool isRunning;
 
     [ObservableProperty]
-    private bool isDisabled;
+    [NotifyCanExecuteChangedFor(nameof(RandomizeCommand))]
+    [NotifyCanExecuteChangedFor(nameof(StartStopCommand))]
+    private bool isWaitingForDriver;
 
     [ObservableProperty]
     private bool isCapturingHotkey;
@@ -66,7 +69,7 @@ public partial class MainWindowViewModel : ViewModelBase
         BaseCm360 = initial.BaseCm360;
         MinMultiplier = initial.MinMultiplier;
         MaxMultiplier = initial.MaxMultiplier;
-        TimerIntervalSeconds = initial.TimerIntervalSeconds;
+        TimerIntervalSeconds = Math.Max(1.5, initial.TimerIntervalSeconds);
         TimerEnabled = initial.TimerEnabled;
         hotkey = initial.Hotkey;
         hotkeyDisplay = hotkey.IsEmpty ? "Set hotkey" : hotkey.ToDisplayString();
@@ -88,74 +91,107 @@ public partial class MainWindowViewModel : ViewModelBase
         engine.BaseCm360 = value;
     }
 
-    [RelayCommand]
-    private void Randomize()
+    partial void OnMinMultiplierChanged(double value)
     {
-        if (IsDisabled)
+        if (value > MaxMultiplier)
+        {
+            MaxMultiplier = value;
+        }
+    }
+
+    partial void OnMaxMultiplierChanged(double value)
+    {
+        if (value < MinMultiplier)
+        {
+            MinMultiplier = value;
+        }
+    }
+
+    private bool CanRandomize() => !IsWaitingForDriver;
+
+    [RelayCommand(CanExecute = nameof(CanRandomize))]
+    private Task Randomize() => RunRandomizeAsync();
+
+    private async Task RunRandomizeAsync()
+    {
+        if (IsWaitingForDriver)
         {
             return;
         }
-        TryWithStatus(() => engine.Randomize(MinMultiplier, MaxMultiplier));
+        IsWaitingForDriver = true;
+        StatusMessage = "Waiting for 1000ms RawAccel delay...";
+        try
+        {
+            await Task.Run(() => engine.Randomize(MinMultiplier, MaxMultiplier));
+            StatusMessage = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = ex.Message;
+        }
+        finally
+        {
+            IsWaitingForDriver = false;
+        }
     }
 
-    [RelayCommand]
-    private void StartStop()
+    private async Task RunApplyMultiplierAsync(double multiplier)
+    {
+        if (IsWaitingForDriver)
+        {
+            return;
+        }
+        IsWaitingForDriver = true;
+        StatusMessage = "Waiting for 1000ms RawAccel delay...";
+        try
+        {
+            await Task.Run(() => engine.ApplyMultiplier(multiplier));
+            StatusMessage = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = ex.Message;
+        }
+        finally
+        {
+            IsWaitingForDriver = false;
+        }
+    }
+
+    private bool CanStartStop() => !IsWaitingForDriver;
+
+    [RelayCommand(CanExecute = nameof(CanStartStop))]
+    private async Task StartStop()
     {
         if (IsRunning)
         {
-            StopRunning();
+            await StopRunningAsync();
         }
         else
         {
-            StartRunning();
+            await StartRunningAsync();
         }
     }
 
-    private void StartRunning()
+    private async Task StartRunningAsync()
     {
         IsRunning = true;
-        IsDisabled = false;
         if (TimerEnabled && TimerIntervalSeconds > 0)
         {
-            TryWithStatus(() => engine.Randomize(MinMultiplier, MaxMultiplier));
+            await RunRandomizeAsync();
             timer.Start(TimeSpan.FromSeconds(TimerIntervalSeconds), () =>
             {
-                if (!IsDisabled)
-                {
-                    Dispatcher.UIThread.Post(() => TryWithStatus(() => engine.Randomize(MinMultiplier, MaxMultiplier)));
-                }
+                Dispatcher.UIThread.Post(() => _ = RunRandomizeAsync());
                 return Task.CompletedTask;
             });
         }
     }
 
-    private void StopRunning()
+    private async Task StopRunningAsync()
     {
         timer.Stop();
         IsRunning = false;
-    }
-
-    [RelayCommand]
-    private void ToggleDisable()
-    {
-        IsDisabled = !IsDisabled;
-        if (IsDisabled)
-        {
-            timer.Stop();
-            TryWithStatus(() =>
-            {
-                engine.ApplyMultiplier(1.0);
-            });
-            LiveOutputText = InvariantFormat.LiveOutput(1.0, BaseCm360);
-        }
-        else if (IsRunning && TimerEnabled && TimerIntervalSeconds > 0)
-        {
-            timer.Start(TimeSpan.FromSeconds(TimerIntervalSeconds), () =>
-            {
-                Dispatcher.UIThread.Post(() => TryWithStatus(() => engine.Randomize(MinMultiplier, MaxMultiplier)));
-                return Task.CompletedTask;
-            });
-        }
+        await RunApplyMultiplierAsync(1.0);
     }
 
     [RelayCommand]
@@ -207,30 +243,17 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         Dispatcher.UIThread.Post(() =>
         {
-            if (IsDisabled)
+            if (IsWaitingForDriver)
             {
                 return;
             }
-            TryWithStatus(() => engine.Randomize(MinMultiplier, MaxMultiplier));
+            _ = RunRandomizeAsync();
         });
     }
 
     private void OnMultiplierChanged(double multiplier, string output)
     {
         Dispatcher.UIThread.Post(() => LiveOutputText = output);
-    }
-
-    private void TryWithStatus(Action action)
-    {
-        try
-        {
-            action();
-            StatusMessage = string.Empty;
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = ex.Message;
-        }
     }
 
     public void OnClosing()

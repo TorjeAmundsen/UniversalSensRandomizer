@@ -1,7 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="UniversalSensRandomizer.Views.FatalErrorWindow"
-        Title="UniversalSensRandomizer — Error"
+        Title="UniversalSensRandomizer - Error"
         Width="500" Height="240"
         CanResize="False"
         WindowStartupLocation="CenterScreen">

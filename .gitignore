@@ -1,0 +1,60 @@
+# Build output
+bin/
+obj/
+out/
+*.binlog
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userprefs
+*.userosscache
+*.sln.docstates
+
+# Rider / ReSharper
+.idea/
+*.DotSettings.user
+_ReSharper*/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Publish output
+publish/
+*.pdb
+*.dll.config
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+!**/packages/build/
+
+# Test results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+coverage/
+
+# Native AOT artefacts
+*.ilc
+*.obj
+*.lib
+*.exp
+
+# Misc OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs / runtime output
+*.log
+rawaccel_log.txt
+current_sensitivity.txt
+
+# Local user data
+*.local.json

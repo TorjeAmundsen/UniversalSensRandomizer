@@ -1,0 +1,280 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:UniversalSensRandomizer.ViewModels"
+        x:Class="UniversalSensRandomizer.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="UniversalSensRandomizer"
+        Width="524" Height="320"
+        CanResize="False"
+        WindowStartupLocation="CenterScreen"
+        Background="#232323"
+        Foreground="#FFFFFF">
+
+  <Window.Resources>
+    <SolidColorBrush x:Key="PanelBrush">#1A1A1A</SolidColorBrush>
+    <SolidColorBrush x:Key="LabelBrush">#FFFFFF</SolidColorBrush>
+  </Window.Resources>
+
+  <Window.Styles>
+    <Style Selector="TextBlock">
+      <Setter Property="Foreground" Value="{StaticResource LabelBrush}" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button, ToggleButton">
+      <Setter Property="Background" Value="#2E2E2E" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+    </Style>
+    <Style Selector="CheckBox">
+      <Setter Property="Foreground" Value="#FFFFFF" />
+    </Style>
+    <Style Selector="Border.panel">
+      <Setter Property="Background" Value="{StaticResource PanelBrush}" />
+      <Setter Property="BorderBrush" Value="#3A3A3A" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="3" />
+    </Style>
+
+    <Style Selector="NumericUpDown">
+      <Setter Property="MinHeight" Value="0" />
+      <Setter Property="MinWidth" Value="0" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="HorizontalContentAlignment" Value="Left" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="NumericUpDown /template/ Border">
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="NumericUpDown /template/ ButtonSpinner">
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="MinHeight" Value="0" />
+    </Style>
+    <Style Selector="NumericUpDown /template/ ButtonSpinner /template/ Border">
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="NumericUpDown /template/ TextBox">
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="MinHeight" Value="0" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Padding" Value="0" />
+    </Style>
+    <Style Selector="NumericUpDown /template/ TextBox /template/ Border">
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="NumericUpDown /template/ TextBox:pointerover /template/ Border">
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="NumericUpDown /template/ TextBox:focus /template/ Border">
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="NumericUpDown /template/ TextBox:focus-within /template/ Border">
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="NumericUpDown:pointerover /template/ Border">
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="NumericUpDown:focus-within /template/ Border">
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="NumericUpDown:focus-within /template/ ButtonSpinner /template/ Border">
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="Border.nud-wrap">
+      <Setter Property="CornerRadius" Value="4,0,0,4" />
+      <Setter Property="BorderBrush" Value="#565656" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Background" Value="#363636" />
+      <Setter Property="ClipToBounds" Value="True" />
+      <Setter Property="Height" Value="28" />
+      <Setter Property="Padding" Value="6,0" />
+    </Style>
+    <Style Selector="Border.nud-wrap:focus-within">
+      <Setter Property="BorderBrush" Value="#777777" />
+    </Style>
+
+    <Style Selector="Button.nud-spin">
+      <Setter Property="Width" Value="20" />
+      <Setter Property="Height" Value="14" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="FontSize" Value="8" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Background" Value="#363636" />
+      <Setter Property="BorderBrush" Value="#565656" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Focusable" Value="False" />
+    </Style>
+  </Window.Styles>
+
+  <Canvas Width="524" Height="320">
+
+    <TextBlock Canvas.Left="10" Canvas.Top="14" Width="121" Height="21"
+               Text="Base cm/360 (at 1.00x)" />
+    <Grid Canvas.Left="140" Canvas.Top="10" Width="111" Height="28"
+          ColumnDefinitions="*,Auto">
+      <Border Classes="nud-wrap" Margin="0,0,-1,0">
+        <NumericUpDown Name="BaseCm360Nud"
+                       Minimum="1" Maximum="200" Increment="0.5"
+                       FormatString="F1"
+                       ShowButtonSpinner="False"
+                       Value="{Binding BaseCm360}" />
+      </Border>
+      <StackPanel Grid.Column="1" Spacing="0">
+        <Button Classes="nud-spin" Content="▲" Tag="BaseCm360Nud"
+                CornerRadius="0,4,0,0"
+                Click="OnSpinIncrement" />
+        <Button Classes="nud-spin" Content="▼" Tag="BaseCm360Nud"
+                CornerRadius="0,0,4,0"
+                Click="OnSpinDecrement" />
+      </StackPanel>
+    </Grid>
+
+    <TextBlock Canvas.Left="10" Canvas.Top="54" Width="121" Height="21"
+               Text="Min multiplier" />
+    <Grid Canvas.Left="140" Canvas.Top="50" Width="111" Height="28"
+          ColumnDefinitions="*,Auto">
+      <Border Classes="nud-wrap" Margin="0,0,-1,0">
+        <NumericUpDown Name="MinMultiplierNud"
+                       Minimum="0.05" Maximum="10" Increment="0.05"
+                       FormatString="F2"
+                       ShowButtonSpinner="False"
+                       Value="{Binding MinMultiplier}" />
+      </Border>
+      <StackPanel Grid.Column="1" Spacing="0">
+        <Button Classes="nud-spin" Content="▲" Tag="MinMultiplierNud"
+                CornerRadius="0,4,0,0"
+                Click="OnSpinIncrement" />
+        <Button Classes="nud-spin" Content="▼" Tag="MinMultiplierNud"
+                CornerRadius="0,0,4,0"
+                Click="OnSpinDecrement" />
+      </StackPanel>
+    </Grid>
+
+    <TextBlock Canvas.Left="10" Canvas.Top="94" Width="121" Height="21"
+               Text="Max multiplier" />
+    <Grid Canvas.Left="140" Canvas.Top="90" Width="111" Height="28"
+          ColumnDefinitions="*,Auto">
+      <Border Classes="nud-wrap" Margin="0,0,-1,0">
+        <NumericUpDown Name="MaxMultiplierNud"
+                       Minimum="0.05" Maximum="10" Increment="0.05"
+                       FormatString="F2"
+                       ShowButtonSpinner="False"
+                       Value="{Binding MaxMultiplier}" />
+      </Border>
+      <StackPanel Grid.Column="1" Spacing="0">
+        <Button Classes="nud-spin" Content="▲" Tag="MaxMultiplierNud"
+                CornerRadius="0,4,0,0"
+                Click="OnSpinIncrement" />
+        <Button Classes="nud-spin" Content="▼" Tag="MaxMultiplierNud"
+                CornerRadius="0,0,4,0"
+                Click="OnSpinDecrement" />
+      </StackPanel>
+    </Grid>
+
+    <ToggleButton Canvas.Left="10" Canvas.Top="135" Width="241" Height="30"
+                  IsChecked="{Binding IsDisabled}"
+                  Command="{Binding ToggleDisableCommand}">
+      <TextBlock>
+        <TextBlock.Text>
+          <MultiBinding StringFormat="{}{0}">
+            <Binding Path="IsDisabled" Converter="{x:Static vm:DisableToggleTextConverter.Instance}" />
+          </MultiBinding>
+        </TextBlock.Text>
+      </TextBlock>
+    </ToggleButton>
+
+    <Button Canvas.Left="10" Canvas.Top="175" Width="241" Height="30"
+            Content="Randomize once"
+            Command="{Binding RandomizeCommand}" />
+
+    <Button Canvas.Left="10" Canvas.Top="215" Width="241" Height="31"
+            Content="Save settings"
+            Command="{Binding SaveSettingsCommand}" />
+
+    <Button Canvas.Left="10" Canvas.Top="255" Width="241" Height="51"
+            Command="{Binding StartStopCommand}">
+      <TextBlock>
+        <TextBlock.Text>
+          <MultiBinding StringFormat="{}{0}">
+            <Binding Path="IsRunning" Converter="{x:Static vm:StartStopTextConverter.Instance}" />
+          </MultiBinding>
+        </TextBlock.Text>
+      </TextBlock>
+    </Button>
+
+    <Border Classes="panel"
+            Canvas.Left="263" Canvas.Top="10" Width="251" Height="211">
+      <Canvas>
+        <TextBlock Canvas.Left="10" Canvas.Top="6" Width="231" Height="21"
+                   Text="Randomize sensitivity"
+                   FontWeight="Bold" />
+
+        <TextBlock Canvas.Left="10" Canvas.Top="36" Width="80" Height="21"
+                   Text="Hotkey" />
+        <Button Canvas.Left="100" Canvas.Top="32" Width="141" Height="28"
+                Content="{Binding HotkeyDisplay}"
+                Command="{Binding CaptureHotkeyCommand}"
+                Name="CaptureHotkeyButton"
+                KeyDown="OnCaptureHotkeyKeyDown"
+                LostFocus="OnCaptureHotkeyLostFocus" />
+
+        <CheckBox Canvas.Left="10" Canvas.Top="100" Width="231" Height="22"
+                  Content="Enable timer"
+                  IsChecked="{Binding TimerEnabled}" />
+
+        <TextBlock Canvas.Left="10" Canvas.Top="132" Width="100" Height="21"
+                   Text="Interval (s)" />
+        <Grid Canvas.Left="100" Canvas.Top="128" Width="141" Height="28"
+              ColumnDefinitions="*,Auto">
+          <Border Classes="nud-wrap" Margin="0,0,-1,0">
+            <NumericUpDown Name="TimerIntervalNud"
+                           Minimum="1" Maximum="9999" Increment="1"
+                           FormatString="F0"
+                           ShowButtonSpinner="False"
+                           Value="{Binding TimerIntervalSeconds}" />
+          </Border>
+          <StackPanel Grid.Column="1" Spacing="0">
+            <Button Classes="nud-spin" Content="▲" Tag="TimerIntervalNud"
+                    CornerRadius="0,4,0,0"
+                    Click="OnSpinIncrement" />
+            <Button Classes="nud-spin" Content="▼" Tag="TimerIntervalNud"
+                    CornerRadius="0,0,4,0"
+                    Click="OnSpinDecrement" />
+          </StackPanel>
+        </Grid>
+      </Canvas>
+    </Border>
+
+    <Border Classes="panel"
+            Canvas.Left="263" Canvas.Top="231" Width="251" Height="75">
+      <TextBlock Text="{Binding LiveOutputText}"
+                 FontWeight="Bold"
+                 FontSize="14"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 TextAlignment="Center" />
+    </Border>
+
+  </Canvas>
+</Window>

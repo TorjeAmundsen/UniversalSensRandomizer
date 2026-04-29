@@ -1,0 +1,26 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="UniversalSensRandomizer.Views.FatalErrorWindow"
+        Title="UniversalSensRandomizer — Error"
+        Width="500" Height="240"
+        CanResize="False"
+        WindowStartupLocation="CenterScreen">
+  <Grid Margin="20" RowDefinitions="Auto,*,Auto">
+    <TextBlock Grid.Row="0"
+               Text="UniversalSensRandomizer could not start."
+               FontSize="16" FontWeight="Bold"
+               Margin="0,0,0,10" />
+    <TextBox Grid.Row="1"
+             Name="MessageBox"
+             IsReadOnly="True"
+             AcceptsReturn="True"
+             TextWrapping="Wrap"
+             Background="#121212"
+             Foreground="#FFFFFF" />
+    <Button Grid.Row="2"
+            Content="Close"
+            HorizontalAlignment="Right"
+            Margin="0,10,0,0"
+            Click="OnCloseClick" />
+  </Grid>
+</Window>

@@ -5,6 +5,12 @@ on:
     push:
         branches:
             - main
+        paths-ignore:
+            - "**/*.md"
+            - "build.ps1"
+            - ".gitignore"
+            - "LICENSE*"
+            - ".editorconfig"
 
 jobs:
     build:

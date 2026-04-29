@@ -2,6 +2,10 @@
 
 Randomizes your mouse sensitivity at the RawAccel driver level so the change applies system-wide and to any game.
 
+**Download the [latest release here](https://github.com/TorjeAmundsen/UniversalSensRandomizer/releases/latest).**
+
+<img width="524" height="280" alt="UniversalSensRandomizer_gXcmBBmFmk" src="https://github.com/user-attachments/assets/5e2ef750-6ed0-4b9e-9519-96bb8750e942" />
+
 ## Anti-cheat safety
 
 This tool only writes to the official RawAccel driver via its public IOCTL interface (the same API the official RawAccel writer uses). It does not inject into game processes, hook input APIs, modify game memory, or touch any anti-cheat protected surface. Sensitivity changes happen below the application layer in the same way they would if you opened the RawAccel GUI and applied a profile manually.

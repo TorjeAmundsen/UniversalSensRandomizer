@@ -57,17 +57,33 @@ public partial class App : Application
 
         MainWindowViewModel vm = new(engine, hotkeys, timer, settingsStore, settings);
         MainWindow window = new() { DataContext = vm };
-        window.Closing += (_, _) => vm.OnClosing();
+        bool closeFinalized = false;
+        window.Closing += async (_, e) =>
+        {
+            if (closeFinalized)
+            {
+                return;
+            }
+            e.Cancel = true;
+            await vm.BeginCloseAsync();
+            closeFinalized = true;
+            window.Close();
+        };
 
         desktop.MainWindow = window;
         desktop.ShutdownRequested += (_, _) =>
         {
-            try
+            // Restore is handled by the window Closing handler (BeginCloseAsync) so
+            // we don't repeat the 1000ms WRITE_DELAY here. Only dispose plumbing.
+            if (!closeFinalized)
             {
-                engine.RestoreOriginal();
-            }
-            catch
-            {
+                try
+                {
+                    engine.RestoreOriginal();
+                }
+                catch
+                {
+                }
             }
             hotkeys.Dispose();
             timer.Dispose();

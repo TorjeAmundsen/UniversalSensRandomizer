@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -32,13 +33,30 @@ public partial class MainWindowViewModel : ViewModelBase
     private bool timerEnabled;
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(StartStopCommand))]
+    [NotifyPropertyChangedFor(nameof(StartStopText))]
     private bool isRunning;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(RandomizeCommand))]
-    [NotifyCanExecuteChangedFor(nameof(StartStopCommand))]
     private bool isWaitingForDriver;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(RandomizeCommand))]
+    [NotifyCanExecuteChangedFor(nameof(StartStopCommand))]
+    [NotifyPropertyChangedFor(nameof(StartStopText))]
+    private bool isStopping;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(RandomizeCommand))]
+    [NotifyCanExecuteChangedFor(nameof(StartStopCommand))]
+    private bool isClosing;
+
+    public string StartStopText =>
+        IsStopping ? "Waiting for RawAccel..."
+        : IsRunning ? "Stop randomizer"
+        : "Start randomizer";
+
+    private readonly SemaphoreSlim driverLock = new(1, 1);
 
     [ObservableProperty]
     private bool isCapturingHotkey;
@@ -107,14 +125,15 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
-    private bool CanRandomize() => !IsWaitingForDriver;
+    private bool CanRandomize() => !IsWaitingForDriver && !IsStopping && !IsClosing;
 
     [RelayCommand(CanExecute = nameof(CanRandomize))]
     private Task Randomize() => RunRandomizeAsync();
 
     private async Task RunRandomizeAsync()
     {
-        if (IsWaitingForDriver)
+        // Drop overlapping randomize calls (e.g. timer fires while previous still running).
+        if (!await driverLock.WaitAsync(0))
         {
             return;
         }
@@ -132,33 +151,11 @@ public partial class MainWindowViewModel : ViewModelBase
         finally
         {
             IsWaitingForDriver = false;
+            driverLock.Release();
         }
     }
 
-    private async Task RunApplyMultiplierAsync(double multiplier)
-    {
-        if (IsWaitingForDriver)
-        {
-            return;
-        }
-        IsWaitingForDriver = true;
-        StatusMessage = "Waiting for 1000ms RawAccel delay...";
-        try
-        {
-            await Task.Run(() => engine.ApplyMultiplier(multiplier));
-            StatusMessage = string.Empty;
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = ex.Message;
-        }
-        finally
-        {
-            IsWaitingForDriver = false;
-        }
-    }
-
-    private bool CanStartStop() => !IsWaitingForDriver;
+    private bool CanStartStop() => !IsStopping && !IsClosing;
 
     [RelayCommand(CanExecute = nameof(CanStartStop))]
     private async Task StartStop()
@@ -191,10 +188,33 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         timer.Stop();
         IsRunning = false;
-        await RunApplyMultiplierAsync(1.0);
+        IsStopping = true;
+        StatusMessage = "Waiting for 1000ms RawAccel delay...";
+        try
+        {
+            await driverLock.WaitAsync();
+            try
+            {
+                IsWaitingForDriver = true;
+                await Task.Run(() => engine.ApplyMultiplier(1.0));
+                StatusMessage = string.Empty;
+            }
+            finally
+            {
+                IsWaitingForDriver = false;
+                driverLock.Release();
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = ex.Message;
+        }
+        finally
+        {
+            IsStopping = false;
+        }
     }
 
-    [RelayCommand]
     private void SaveSettings()
     {
         PersistedSettings settings = new()
@@ -225,6 +245,15 @@ public partial class MainWindowViewModel : ViewModelBase
         HotkeyDisplay = "Press a key…";
     }
 
+    [RelayCommand]
+    private void ClearHotkey()
+    {
+        hotkey = HotkeyCombination.None;
+        HotkeyDisplay = "Set hotkey";
+        IsCapturingHotkey = false;
+        hotkeys.Unregister();
+    }
+
     public void ApplyCapturedHotkey(uint virtualKey, HotkeyModifiers modifiers)
     {
         hotkey = new HotkeyCombination(virtualKey, modifiers);
@@ -241,14 +270,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private void OnHotkeyPressed()
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (IsWaitingForDriver)
-            {
-                return;
-            }
-            _ = RunRandomizeAsync();
-        });
+        Dispatcher.UIThread.Post(() => _ = RunRandomizeAsync());
     }
 
     private void OnMultiplierChanged(double multiplier, string output)
@@ -256,13 +278,30 @@ public partial class MainWindowViewModel : ViewModelBase
         Dispatcher.UIThread.Post(() => LiveOutputText = output);
     }
 
-    public void OnClosing()
+    public async Task BeginCloseAsync()
     {
+        if (IsClosing)
+        {
+            return;
+        }
+        IsClosing = true;
         timer.Stop();
         hotkeys.Unregister();
+        LiveOutputText = "Resetting RawAccel...";
+        StatusMessage = "Waiting for 1000ms RawAccel delay...";
         try
         {
-            engine.RestoreOriginal();
+            await driverLock.WaitAsync();
+            try
+            {
+                IsWaitingForDriver = true;
+                await Task.Run(() => engine.RestoreOriginal());
+            }
+            finally
+            {
+                IsWaitingForDriver = false;
+                driverLock.Release();
+            }
         }
         catch
         {

@@ -180,22 +180,16 @@
 
     <Button Canvas.Left="10" Canvas.Top="135" Width="241" Height="30"
             Content="Randomize once"
+            Padding="0"
+            HorizontalContentAlignment="Center"
+            VerticalContentAlignment="Center"
             Command="{Binding RandomizeCommand}" />
 
-    <Button Canvas.Left="10" Canvas.Top="175" Width="241" Height="31"
-            Content="Save settings"
-            Command="{Binding SaveSettingsCommand}" />
-
-    <Button Canvas.Left="10" Canvas.Top="215" Width="241" Height="51"
-            Command="{Binding StartStopCommand}">
-      <TextBlock>
-        <TextBlock.Text>
-          <MultiBinding StringFormat="{}{0}">
-            <Binding Path="IsRunning" Converter="{x:Static vm:StartStopTextConverter.Instance}" />
-          </MultiBinding>
-        </TextBlock.Text>
-      </TextBlock>
-    </Button>
+    <Button Canvas.Left="10" Canvas.Top="175" Width="241" Height="91"
+            Content="{Binding StartStopText}"
+            HorizontalContentAlignment="Center"
+            VerticalContentAlignment="Center"
+            Command="{Binding StartStopCommand}" />
 
     <Border Classes="panel"
             Canvas.Left="263" Canvas.Top="10" Width="251" Height="171">
@@ -204,29 +198,47 @@
                    Text="Randomize sensitivity"
                    FontWeight="Bold" />
 
-        <TextBlock Canvas.Left="10" Canvas.Top="36" Width="80" Height="21"
+        <TextBlock Canvas.Left="10" Canvas.Top="36" Width="50" Height="21"
                    Text="Hotkey" />
-        <Button Canvas.Left="100" Canvas.Top="32" Width="141" Height="28"
+        <Button Canvas.Left="70" Canvas.Top="32" Width="139" Height="28"
                 Content="{Binding HotkeyDisplay}"
+                Padding="0"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
                 Command="{Binding CaptureHotkeyCommand}"
                 Name="CaptureHotkeyButton"
                 KeyDown="OnCaptureHotkeyKeyDown"
                 LostFocus="OnCaptureHotkeyLostFocus" />
+        <Button Canvas.Left="213" Canvas.Top="32" Width="28" Height="28"
+                Padding="0"
+                FontSize="14"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                ToolTip.Tip="Clear hotkey"
+                Command="{Binding ClearHotkeyCommand}">
+          <TextBlock Text="⊘" Margin="0,-2,0,0" />
+        </Button>
 
         <CheckBox Canvas.Left="10" Canvas.Top="100" Width="231" Height="22"
                   Content="Enable timer"
                   IsChecked="{Binding TimerEnabled}" />
 
-        <TextBlock Canvas.Left="10" Canvas.Top="132" Width="100" Height="21"
-                   Text="Interval (s)" />
-        <Grid Canvas.Left="100" Canvas.Top="128" Width="141" Height="28"
+        <TextBlock Canvas.Left="10" Canvas.Top="132" Width="50" Height="21"
+                   Text="Interval" />
+        <Grid Canvas.Left="70" Canvas.Top="128" Width="171" Height="28"
               ColumnDefinitions="*,Auto">
           <Border Classes="nud-wrap" Margin="0,0,-1,0">
-            <NumericUpDown Name="TimerIntervalNud"
-                           Minimum="1.5" Maximum="9999" Increment="0.5"
-                           FormatString="F1"
-                           ShowButtonSpinner="False"
-                           Value="{Binding TimerIntervalSeconds, Converter={x:Static vm:NudDoubleConverter.Instance}}" />
+            <Grid ColumnDefinitions="*,Auto">
+              <NumericUpDown Grid.Column="0" Name="TimerIntervalNud"
+                             Minimum="1.5" Maximum="9999" Increment="0.5"
+                             FormatString="F1"
+                             ShowButtonSpinner="False"
+                             Value="{Binding TimerIntervalSeconds, Converter={x:Static vm:NudDoubleConverter.Instance}}" />
+              <TextBlock Grid.Column="1" Text="seconds"
+                         Foreground="#888888"
+                         Margin="4,0,0,0"
+                         VerticalAlignment="Center" />
+            </Grid>
           </Border>
           <StackPanel Grid.Column="1" Spacing="0">
             <Button Classes="nud-spin" Content="▲" Tag="TimerIntervalNud"

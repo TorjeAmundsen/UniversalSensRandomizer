@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
+using UniversalSensRandomizer;
 using UniversalSensRandomizer.Models;
 using UniversalSensRandomizer.ViewModels;
 
@@ -11,6 +12,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        Title = $"UniversalSensRandomizer v{VersionInfo.Version}";
     }
 
     private void InitializeComponent()

@@ -39,13 +39,7 @@ While RawAccel is applying a change, the driver enforces a 1-second write delay.
 
 ## OBS / streaming overlay
 
-Each time the multiplier changes, the current value (and effective cm/360) is also written to:
-
-```
-current_sensitivity.txt
-```
-
-next to the executable. Point an OBS **Text (GDI+)** source at that file via "Read from file" to display your current sensitivity live on stream. The file is overwritten atomically on every update.
+Each time the multiplier changes, the current value (and effective cm/360) is also written to `current_sensitivity.txt` next to the executable. Point an OBS **Text (GDI+)** source at that file via "Read from file" to display your current sensitivity live on stream. The file is overwritten atomically on every update.
 
 ## Settings
 

@@ -38,4 +38,26 @@
     <RdXmlFile Include="rd.xml" Condition="Exists('rd.xml')" />
   </ItemGroup>
 
+  <!-- Emit a compile-time const VersionInfo.Version sourced from <Version>.
+       Avoids runtime reflection so the title works under Native AOT. -->
+  <Target Name="GenerateVersionInfo" BeforeTargets="BeforeCompile" Inputs="$(MSBuildProjectFile)" Outputs="$(IntermediateOutputPath)VersionInfo.g.cs">
+    <PropertyGroup>
+      <VersionInfoFile>$(IntermediateOutputPath)VersionInfo.g.cs</VersionInfoFile>
+      <VersionInfoSource>// &lt;auto-generated /&gt;
+namespace UniversalSensRandomizer%3B
+
+internal static class VersionInfo
+{
+    public const string Version = "$(Version)"%3B
+}
+</VersionInfoSource>
+    </PropertyGroup>
+    <MakeDir Directories="$(IntermediateOutputPath)" />
+    <WriteLinesToFile File="$(VersionInfoFile)" Lines="$(VersionInfoSource)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <ItemGroup>
+      <Compile Include="$(VersionInfoFile)" />
+      <FileWrites Include="$(VersionInfoFile)" />
+    </ItemGroup>
+  </Target>
+
 </Project>

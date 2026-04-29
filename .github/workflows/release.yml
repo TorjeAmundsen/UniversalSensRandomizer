@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Publish
+        shell: bash
+        run: |
+          dotnet publish UniversalSensRandomizer.csproj \
+            -c Release \
+            -r win-x64 \
+            --self-contained true \
+            -p:PublishAot=true \
+            -o build/win-x64
+
+      - name: Remove debug symbols
+        shell: bash
+        run: rm -f build/win-x64/*.pdb
+
+      - name: Zip build
+        shell: bash
+        run: |
+          cd build/win-x64
+          7z a -tzip "../UniversalSensRandomizer-${{ github.ref_name }}-win-x64.zip" "*"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: build-win-x64
+          path: build/UniversalSensRandomizer-${{ github.ref_name }}-win-x64.zip
+          if-no-files-found: error
+
+  release:
+    needs: [build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v3
+        with:
+          files: artifacts/*.zip
+          draft: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          name: ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          body: ''

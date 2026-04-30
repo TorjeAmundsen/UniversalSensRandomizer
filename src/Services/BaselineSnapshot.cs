@@ -6,18 +6,11 @@ using UniversalSensRandomizer.Models;
 
 namespace UniversalSensRandomizer.Services;
 
-public sealed class BaselineSnapshot
+public sealed class BaselineSnapshot(SensitivitySnapshot snapshot)
 {
-    private readonly byte[] originalBuffer;
-    private readonly double[] originalOutputDpis;
-    private readonly int modifierCount;
-
-    public BaselineSnapshot(SensitivitySnapshot snapshot)
-    {
-        originalBuffer = snapshot.OriginalBuffer;
-        originalOutputDpis = [.. snapshot.OriginalOutputDpis];
-        modifierCount = snapshot.ModifierCount;
-    }
+    private readonly byte[] originalBuffer = snapshot.OriginalBuffer;
+    private readonly double[] originalOutputDpis = [.. snapshot.OriginalOutputDpis];
+    private readonly int modifierCount = snapshot.ModifierCount;
 
     public byte[] OriginalBuffer => originalBuffer;
     public IReadOnlyList<double> OriginalOutputDpis => originalOutputDpis;

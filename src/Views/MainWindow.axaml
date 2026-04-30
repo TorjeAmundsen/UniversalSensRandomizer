@@ -4,7 +4,7 @@
         x:Class="UniversalSensRandomizer.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="UniversalSensRandomizer"
-        Width="524" Height="280"
+        Width="524" Height="520"
         CanResize="False"
         WindowStartupLocation="CenterScreen"
         Background="#2C2C2C">
@@ -13,6 +13,16 @@
     <Style Selector="TextBlock">
       <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
+    <Style Selector="TextBox">
+      <Setter Property="Background" Value="#363636" />
+      <Setter Property="BorderBrush" Value="#565656" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="CaretBrush" Value="#FFFFFF" />
+      <Setter Property="SelectionBrush" Value="#336EB0" />
+      <Setter Property="SelectionForegroundBrush" Value="#FFFFFF" />
+    </Style>
+
     <Style Selector="Border.panel">
       <Setter Property="Background" Value="#252525" />
       <Setter Property="BorderBrush" Value="#484848" />
@@ -113,7 +123,7 @@
     </Style>
   </Window.Styles>
 
-  <Canvas Width="524" Height="280">
+  <Canvas Width="524" Height="520">
 
     <TextBlock Canvas.Left="10" Canvas.Top="14" Width="151" Height="21"
                Text="Base cm/360 (at 1.00x)" />
@@ -260,6 +270,146 @@
                  HorizontalAlignment="Center"
                  VerticalAlignment="Center"
                  TextAlignment="Center" />
+    </Border>
+
+    <Border Classes="panel"
+            Canvas.Left="10" Canvas.Top="276" Width="504" Height="234">
+      <Canvas>
+        <TextBlock Canvas.Left="10" Canvas.Top="6" Width="200" Height="21"
+                   Text="Twitch integration"
+                   FontWeight="Bold" />
+        <CheckBox Canvas.Left="380" Canvas.Top="4" Width="110" Height="22"
+                  Content="Enable"
+                  IsChecked="{Binding TwitchEnabled}" />
+
+        <TextBlock Canvas.Left="10" Canvas.Top="36" Width="60" Height="21"
+                   Text="Status:" />
+        <TextBlock Canvas.Left="70" Canvas.Top="36" Width="420" Height="21"
+                   Text="{Binding TwitchStatusText}"
+                   TextTrimming="CharacterEllipsis" />
+
+        <Button Canvas.Left="10" Canvas.Top="64" Width="220" Height="30"
+                Content="Connect to Twitch"
+                Padding="0"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                Command="{Binding ConnectTwitchCommand}" />
+        <Button Canvas.Left="270" Canvas.Top="64" Width="220" Height="30"
+                Content="Disconnect"
+                Padding="0"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                Command="{Binding DisconnectTwitchCommand}" />
+
+        <TextBlock Canvas.Left="10" Canvas.Top="106" Width="60" Height="21"
+                   Text="Reward" />
+        <ComboBox Canvas.Left="90" Canvas.Top="102" Width="320" Height="28"
+                  ItemsSource="{Binding TwitchRewards}"
+                  SelectedItem="{Binding SelectedTwitchReward}">
+          <ComboBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:TwitchRewardOption">
+              <TextBlock Text="{Binding Display}" />
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+        <Button Canvas.Left="416" Canvas.Top="102" Width="74" Height="28"
+                Content="Refresh"
+                Padding="0"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                Command="{Binding RefreshRewardsCommand}" />
+
+        <TextBlock Canvas.Left="10" Canvas.Top="146" Width="80" Height="21"
+                   Text="Cooldown" />
+        <Grid Canvas.Left="90" Canvas.Top="142" Width="171" Height="28"
+              ColumnDefinitions="*,Auto">
+          <Border Classes="nud-wrap" Margin="0,0,-1,0">
+            <Grid ColumnDefinitions="*,Auto">
+              <NumericUpDown Grid.Column="0" Name="TwitchCooldownNud"
+                             Minimum="1" Maximum="600" Increment="0.5"
+                             FormatString="F1"
+                             ShowButtonSpinner="False"
+                             Value="{Binding TwitchCooldownSeconds, Converter={x:Static vm:NudDoubleConverter.Instance}}" />
+              <TextBlock Grid.Column="1" Text="seconds"
+                         Foreground="#888888"
+                         Margin="4,0,0,0"
+                         VerticalAlignment="Center" />
+            </Grid>
+          </Border>
+          <StackPanel Grid.Column="1" Spacing="0">
+            <Button Classes="nud-spin" Content="▲" Tag="TwitchCooldownNud"
+                    CornerRadius="0,4,0,0"
+                    Click="OnSpinIncrement" />
+            <Button Classes="nud-spin" Content="▼" Tag="TwitchCooldownNud"
+                    CornerRadius="0,0,4,0"
+                    Click="OnSpinDecrement" />
+          </StackPanel>
+        </Grid>
+
+        <TextBlock Canvas.Left="302" Canvas.Top="146" Width="80" Height="21"
+                   Text="Queue cap" />
+        <Grid Canvas.Left="382" Canvas.Top="142" Width="108" Height="28"
+              ColumnDefinitions="*,Auto">
+          <Border Classes="nud-wrap" Margin="0,0,-1,0">
+            <NumericUpDown Name="TwitchQueueCapNud"
+                           Minimum="1" Maximum="100" Increment="1"
+                           FormatString="F0"
+                           ShowButtonSpinner="False"
+                           Value="{Binding TwitchQueueCap, Converter={x:Static vm:NudIntConverter.Instance}}" />
+          </Border>
+          <StackPanel Grid.Column="1" Spacing="0">
+            <Button Classes="nud-spin" Content="▲" Tag="TwitchQueueCapNud"
+                    CornerRadius="0,4,0,0"
+                    Click="OnSpinIncrement" />
+            <Button Classes="nud-spin" Content="▼" Tag="TwitchQueueCapNud"
+                    CornerRadius="0,0,4,0"
+                    Click="OnSpinDecrement" />
+          </StackPanel>
+        </Grid>
+
+        <TextBlock Canvas.Left="10" Canvas.Top="180" Width="60" Height="21"
+                   Text="New" />
+        <TextBox Canvas.Left="90" Canvas.Top="178" Width="200" Height="28"
+                 PlaceholderText="Reward title"
+                 Text="{Binding NewRewardTitle}" />
+        <Grid Canvas.Left="296" Canvas.Top="178" Width="80" Height="28"
+              ColumnDefinitions="*,Auto">
+          <Border Classes="nud-wrap" Margin="0,0,-1,0">
+            <NumericUpDown Name="NewRewardCostNud"
+                           Minimum="1" Maximum="1000000" Increment="100"
+                           FormatString="F0"
+                           ShowButtonSpinner="False"
+                           Value="{Binding NewRewardCost, Converter={x:Static vm:NudIntConverter.Instance}}" />
+          </Border>
+          <StackPanel Grid.Column="1" Spacing="0">
+            <Button Classes="nud-spin" Content="▲" Tag="NewRewardCostNud"
+                    CornerRadius="0,4,0,0"
+                    Click="OnSpinIncrement" />
+            <Button Classes="nud-spin" Content="▼" Tag="NewRewardCostNud"
+                    CornerRadius="0,0,4,0"
+                    Click="OnSpinDecrement" />
+          </StackPanel>
+        </Grid>
+        <Button Canvas.Left="382" Canvas.Top="178" Width="108" Height="28"
+                Content="Create reward"
+                Padding="0"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                Command="{Binding CreateRewardCommand}" />
+
+        <TextBlock Canvas.Left="10" Canvas.Top="210" Width="480" Height="18"
+                   Text="{Binding NewRewardConflictMessage}"
+                   FontSize="11"
+                   Foreground="#E07070"
+                   TextTrimming="CharacterEllipsis"
+                   IsVisible="{Binding NewRewardTitleConflict}" />
+        <TextBlock Canvas.Left="10" Canvas.Top="210" Width="480" Height="18"
+                   Text="{Binding NewRewardSuccessMessage}"
+                   FontSize="11"
+                   Foreground="#7FCC7F"
+                   TextTrimming="CharacterEllipsis"
+                   IsVisible="{Binding NewRewardSuccess}" />
+      </Canvas>
     </Border>
 
   </Canvas>

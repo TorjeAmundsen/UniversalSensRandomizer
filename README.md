@@ -29,6 +29,21 @@ Sampling is log-uniform, so 0.5x↔1.0x and 1.0x↔2.0x are equally likely. No s
 
 When RawAccel is mid-write, the UI shows "Waiting for 1000ms RawAccel delay..." for ~1 second.
 
+## Twitch integration
+
+Viewers can spend channel points to randomize your sens. Requires **Twitch Affiliate or Partner** (channel point rewards aren't available below that).
+
+- **Connect to Twitch** - opens browser, asks you to authorize. Token is stored DPAPI-encrypted next to settings.
+- **Create reward** - creates a channel point reward owned by this app. Required for refunds to work (Twitch only lets the app that created a reward refund its redemptions). Existing manually-created rewards aren't selectable.
+- **Reward picker** - shows only rewards this app can manage. Use **Refresh** if you create more outside the app.
+- **Enable** - master switch for acting on redemptions.
+- **Cooldown** - minimum seconds between randomizes triggered by redemptions.
+- **Queue cap** - if more than N redemptions are queued, extras are dropped.
+
+The reward is auto-paused on Twitch (shows as "Unavailable" to viewers) when the randomizer is stopped or **Enable** is unchecked, so viewers can't spend points on something that won't fire. Redemptions that arrive while paused/disabled are refunded automatically.
+
+Token expires after ~60 days; you'll see a "Token expired" status and need to click Connect again.
+
 ## OBS overlay
 
 Current multiplier + cm/360 is written to `current_sensitivity.txt` next to the exe on every change. Point an OBS **Text (GDI+)** source at it with "Read from file" for a live overlay.

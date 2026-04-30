@@ -25,3 +25,18 @@ public sealed class NudDoubleConverter : IValueConverter
     }
 }
 
+public sealed class NudIntConverter : IValueConverter
+{
+    public static NudIntConverter Instance { get; } = new();
+
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        return value is int i ? (decimal)i : (object?)null;
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        return value is decimal d ? (int)d : BindingOperations.DoNothing;
+    }
+}
+

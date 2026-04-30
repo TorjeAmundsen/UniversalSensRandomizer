@@ -3,6 +3,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using UniversalSensRandomizer.Models;
 using UniversalSensRandomizer.Services;
+using UniversalSensRandomizer.Services.Twitch;
 using UniversalSensRandomizer.ViewModels;
 using UniversalSensRandomizer.Views;
 
@@ -37,15 +38,9 @@ public partial class App : Application
         SettingsStore settingsStore = new();
         PersistedSettings settings = settingsStore.Load();
 
-        IRawAccelClient client;
-        if (Program.NoDriverMode)
-        {
-            client = new NoDriverRawAccelClient();
-        }
-        else
-        {
-            client = new FallbackRawAccelClient(new IoctlRawAccelClient());
-        }
+        IRawAccelClient client = Program.NoDriverMode
+            ? new NoDriverRawAccelClient()
+            : new IoctlRawAccelClient();
 
         SensitivitySnapshot snapshot = BaselineSnapshot.Capture(client);
         BaselineSnapshot baseline = new(snapshot);
@@ -56,6 +51,29 @@ public partial class App : Application
         TimerService timer = new();
 
         MainWindowViewModel vm = new(engine, hotkeys, timer, settingsStore, settings);
+
+        TwitchIntegrationService twitch = new(
+            TwitchConfig.ClientId,
+            engine,
+            () => (vm.MinMultiplier, vm.MaxMultiplier),
+            () => vm.IsRunning)
+        {
+            RewardId = settings.TwitchRewardId,
+            CooldownSeconds = settings.TwitchCooldownSeconds,
+            QueueCap = settings.TwitchQueueCap,
+            Enabled = settings.TwitchEnabled,
+        };
+        vm.AttachTwitch(twitch);
+
+        if (settings.TwitchEnabled)
+        {
+            string? resumeToken = TokenProtector.Unprotect(settings.TwitchProtectedToken);
+            if (!string.IsNullOrEmpty(resumeToken))
+            {
+                _ = twitch.ResumeAsync(resumeToken, System.Threading.CancellationToken.None);
+            }
+        }
+
         MainWindow window = new() { DataContext = vm };
         bool closeFinalized = false;
         window.Closing += async (_, e) =>
@@ -73,8 +91,6 @@ public partial class App : Application
         desktop.MainWindow = window;
         desktop.ShutdownRequested += (_, _) =>
         {
-            // Restore is handled by the window Closing handler (BeginCloseAsync) so
-            // we don't repeat the 1000ms WRITE_DELAY here. Only dispose plumbing.
             if (!closeFinalized)
             {
                 try
@@ -87,6 +103,7 @@ public partial class App : Application
             }
             hotkeys.Dispose();
             timer.Dispose();
+            _ = twitch.DisposeAsync();
         };
     }
 

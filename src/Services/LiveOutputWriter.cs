@@ -6,12 +6,7 @@ namespace UniversalSensRandomizer.Services;
 
 public sealed class LiveOutputWriter
 {
-    private readonly string filePath;
-
-    public LiveOutputWriter()
-    {
-        filePath = Path.Combine(AppContext.BaseDirectory, "current_sensitivity.txt");
-    }
+    private readonly string filePath = Path.Combine(AppContext.BaseDirectory, "current_sensitivity.txt");
 
     public string FilePath => filePath;
 

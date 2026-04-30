@@ -64,3 +64,11 @@ Requires .NET 10 SDK on Windows.
 ```
 
 `--zip` packages a release zip. `--debug` keeps symbols.
+
+For Twitch features, set the Twitch app Client ID at build time so it gets baked into the binary:
+
+```
+$env:TWITCH_CLIENT_ID = "your_client_id_here"; .\build.ps1
+```
+
+Or pass it via MSBuild: `dotnet build /p:TwitchClientId=your_client_id_here`. Without it the app builds and runs, but Twitch features show "Client ID not configured".

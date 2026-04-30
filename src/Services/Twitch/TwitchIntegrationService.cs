@@ -55,9 +55,9 @@ public sealed class     TwitchIntegrationService(
 
     public async Task ConnectAsync(CancellationToken ct)
     {
-        if (string.IsNullOrEmpty(clientId) || clientId.StartsWith("REPLACE_", StringComparison.Ordinal))
+        if (string.IsNullOrEmpty(clientId))
         {
-            SetState(TwitchState.Error, "Twitch Client ID not configured");
+            SetState(TwitchState.Error, "Twitch Client ID not configured (set TWITCH_CLIENT_ID at build time)");
             return;
         }
 
@@ -170,6 +170,13 @@ public sealed class     TwitchIntegrationService(
                 titles.Add(r.Title);
             }
             AllRewardTitles = titles;
+            if (!string.IsNullOrEmpty(RewardId) && !manageable.Exists(r => r.Id == RewardId))
+            {
+                RewardId = "";
+                lastSyncedRewardId = "";
+                lastSyncedPaused = null;
+                SetState(State, "Saved reward is no longer manageable by this app. Pick or create a new one.");
+            }
             StateChanged?.Invoke();
         }
         catch (Exception ex)

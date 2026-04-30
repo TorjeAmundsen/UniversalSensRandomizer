@@ -480,10 +480,13 @@ public partial class MainWindowViewModel : ViewModelBase
             {
                 TwitchRewards.Add(new TwitchRewardOption(r.Id, $"{r.Title} ({r.Cost})"));
             }
-            if (!string.IsNullOrEmpty(TwitchRewardId))
+            if (twitch.RewardId != TwitchRewardId)
             {
-                SelectedTwitchReward = TwitchRewards.FirstOrDefault(o => o.Id == TwitchRewardId);
+                TwitchRewardId = twitch.RewardId;
             }
+            SelectedTwitchReward = string.IsNullOrEmpty(TwitchRewardId)
+                ? null
+                : TwitchRewards.FirstOrDefault(o => o.Id == TwitchRewardId);
             UpdateTitleConflict();
         });
     }

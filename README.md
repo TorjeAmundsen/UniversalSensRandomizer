@@ -33,6 +33,9 @@ When RawAccel is mid-write, the UI shows "Waiting for 1000ms RawAccel delay..." 
 
 Viewers can spend channel points to randomize your sens. Requires **Twitch Affiliate or Partner** (channel point rewards aren't available below that).
 
+<img width="524" height="251" alt="UniversalSensRandomizer_CxPtFfnJa3" src="https://github.com/user-attachments/assets/d34c7028-fe1a-4506-96db-2a3d914111c0" />
+
+### Setup
 - **Connect to Twitch** - opens browser, asks you to authorize. Token is stored DPAPI-encrypted next to settings.
 - **Create reward** - creates a channel point reward owned by this app. Required for refunds to work (Twitch only lets the app that created a reward refund its redemptions). Existing manually-created rewards aren't selectable.
 - **Reward picker** - shows only rewards this app can manage. Use **Refresh** if you create more outside the app.

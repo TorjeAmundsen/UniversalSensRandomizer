@@ -11,7 +11,7 @@
     <AssemblyName>UniversalSensRandomizer</AssemblyName>
     <ApplicationIcon>randoicon.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
 
     <PublishAot>true</PublishAot>
     <InvariantGlobalization>true</InvariantGlobalization>

@@ -11,7 +11,7 @@
     <AssemblyName>UniversalSensRandomizer</AssemblyName>
     <ApplicationIcon>randoicon.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
 
     <PublishAot>true</PublishAot>
     <InvariantGlobalization>true</InvariantGlobalization>
@@ -58,6 +58,33 @@ internal static class VersionInfo
     <ItemGroup>
       <Compile Include="$(VersionInfoFile)" />
       <FileWrites Include="$(VersionInfoFile)" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Emit Twitch Client ID as a compile-time const from env var TWITCH_CLIENT_ID
+       (or the MSBuild property TwitchClientId via /p:TwitchClientId=...).
+       Keeps the Client ID out of source. Empty value compiles cleanly but the
+       app surfaces "Client ID not configured" until set. -->
+  <Target Name="GenerateTwitchConfig" BeforeTargets="BeforeCompile">
+    <PropertyGroup>
+      <TwitchClientIdValue Condition="'$(TwitchClientId)' != ''">$(TwitchClientId)</TwitchClientIdValue>
+      <TwitchClientIdValue Condition="'$(TwitchClientId)' == ''">$([System.Environment]::GetEnvironmentVariable('TWITCH_CLIENT_ID'))</TwitchClientIdValue>
+      <TwitchConfigFile>$(IntermediateOutputPath)TwitchConfig.g.cs</TwitchConfigFile>
+      <TwitchConfigSource>// &lt;auto-generated /&gt;
+namespace UniversalSensRandomizer.Services.Twitch%3B
+
+internal static class TwitchConfig
+{
+    public const string ClientId = "$(TwitchClientIdValue)"%3B
+    public const int RedirectPort = 17563%3B
+}
+</TwitchConfigSource>
+    </PropertyGroup>
+    <MakeDir Directories="$(IntermediateOutputPath)" />
+    <WriteLinesToFile File="$(TwitchConfigFile)" Lines="$(TwitchConfigSource)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <ItemGroup>
+      <Compile Include="$(TwitchConfigFile)" />
+      <FileWrites Include="$(TwitchConfigFile)" />
     </ItemGroup>
   </Target>
 
